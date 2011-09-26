@@ -102,6 +102,8 @@
 
 <li role="treeitem" id="task_treeitem"><span class="nodisclosure"></span><span class="sectionName"><a href="#tasks">Tasks</a></span><ul>
 	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#task_Accessing HTTP Client Properties">Accessing HTTP Client Properties</a></span></li>
+	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#task_Creating and Initializing HTTP Clients">Creating and Initializing HTTP Clients</a></span></li>
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#task_Managing HTTP Header Values">Managing HTTP Header Values</a></span></li>
@@ -208,6 +210,26 @@
 						<a title="Overview" name="overview"></a>
 						<h2 class="subtitle subtitle-overview">Overview</h2>
 						<p><a href="AFHTTPClient.html"><code>AFHTTPClient</code></a> objects encapsulates the common patterns of communicating with an application, webservice, or API. It encapsulates persistent information, like base URL, authorization credentials, and HTTP headers, and uses them to construct and manage the execution of HTTP request operations.</p>
+
+<p>In its default implementation, <a href="AFHTTPClient.html"><code>AFHTTPClient</code></a> sets the following HTTP headers:</p>
+
+<ul>
+<li><code>Accept: application/json</code></li>
+<li><code>Accept-Encoding: gzip</code></li>
+<li><code>Accept-Language: #{[NSLocale preferredLanguages]}, en-us;q=0.8</code></li>
+<li>`User-Agent: #{generated user agent}</li>
+</ul>
+
+
+<p>You can override these HTTP headers or define new ones using <code>setDefaultHeader:value:</code>.</p>
+
+<h1>Subclassing Notes</h1>
+
+<p>It is strongly recommended that you create an <code>AFHTTPClient</code> subclass for each website or web application that your application communicates with, and in each subclass, defining a method that returns a singleton object that acts as single a shared HTTP client that holds authentication credentials and other configuration for the entire application.</p>
+
+<h2>Methods to Override</h2>
+
+<p>If an <code>AFHTTPClient</code> wishes to change the way request parameters are encoded, then the base implementation of <code>requestWithMethod:path:parameters: should be overridden. Otherwise, it should be sufficient to take the</code>super<code>implementation, and configure the resulting</code>NSMutableURLRequest` object accordingly.</p>
 					</div>
 					
 					
@@ -219,8 +241,8 @@
 						<h2 class="subtitle subtitle-tasks">Tasks</h2>
 						
 						
-						
-						<h3 class="subsubtitle task-title">Other Methods</h3>
+						<a title="Accessing HTTP Client Properties" name="task_Accessing HTTP Client Properties"></a>
+						<h3 class="subsubtitle task-title">Accessing HTTP Client Properties</h3>
 
 						<ul class="task-list">
 							<li>
@@ -277,7 +299,7 @@
 							<li>
 	<span class="tooltip">
 		<code><a href="#//api/name/defaultValueForHeader:">&ndash;&nbsp;defaultValueForHeader:</a></code>
-		<span class="tooltip"><p>Returns the value for the HTTP headers set in request objects created by the HTTP client</p></span>
+		<span class="tooltip"><p>Returns the value for the HTTP headers set in request objects created by the HTTP client.</p></span>
 	</span>
 	
 	
@@ -327,7 +349,7 @@
 </li><li>
 	<span class="tooltip">
 		<code><a href="#//api/name/multipartFormRequestWithMethod:path:parameters:constructingBodyWithBlock:">&ndash;&nbsp;multipartFormRequestWithMethod:path:parameters:constructingBodyWithBlock:</a></code>
-		<span class="tooltip"><p>Creates an <code>NSMutableURLRequest</code> object with the specified HTTP method and path, and constructs a <code>multipart/form-data</code> HTTP body, using the specified parameters and multipart form data block.</p></span>
+		<span class="tooltip"><p>Creates an <code>NSMutableURLRequest</code> object with the specified HTTP method and path, and constructs a <code>multipart/form-data</code> HTTP body, using the specified parameters and multipart form data block. See <a href="http://www.w3.org/TR/html4/interact/forms.html">http://www.w3.org/TR/html4/interact/forms.html</a>#h-17.13.4.2</p></span>
 	</span>
 	
 	
@@ -697,7 +719,7 @@
 	
 	
 	<div class="method-subsection brief-description">
-		<p>Returns the value for the HTTP headers set in request objects created by the HTTP client</p>
+		<p>Returns the value for the HTTP headers set in request objects created by the HTTP client.</p>
 	</div>		
 	
 	
@@ -727,7 +749,7 @@
 	
 	<div class="method-subsection discussion-section">
 		<h4 class="method-subtitle">Discussion</h4>
-		<p>Returns the value for the HTTP headers set in request objects created by the HTTP client</p>
+		<p>Returns the value for the HTTP headers set in request objects created by the HTTP client.</p>
 	</div>
 	
 	
@@ -755,7 +777,7 @@
 	</div>		
 	
 	
-	<div class="method-subsection method-declaration"><code>- (void)deletePath:(NSString *)<em>path</em> parameters:(NSDictionary *)<em>parameters</em> success:(void ( ^ ) ( id response ))<em>success</em> failure:(void ( ^ ) ( NSError *error ))<em>failure</em></code></div>
+	<div class="method-subsection method-declaration"><code>- (void)deletePath:(NSString *)<em>path</em> parameters:(NSDictionary *)<em>parameters</em> success:(void ( ^ ) ( id object ))<em>success</em> failure:(void ( ^ ) ( NSHTTPURLResponse *response , NSError *error ))<em>failure</em></code></div>
 	
 	
 	<div class="method-subsection arguments-section parameters">
@@ -819,7 +841,7 @@
 	</div>		
 	
 	
-	<div class="method-subsection method-declaration"><code>- (void)enqueueHTTPOperationWithRequest:(NSURLRequest *)<em>request</em> success:(void ( ^ ) ( id response ))<em>success</em> failure:(void ( ^ ) ( NSError *error ))<em>failure</em></code></div>
+	<div class="method-subsection method-declaration"><code>- (void)enqueueHTTPOperationWithRequest:(NSURLRequest *)<em>request</em> success:(void ( ^ ) ( id object ))<em>success</em> failure:(void ( ^ ) ( NSHTTPURLResponse *response , NSError *error ))<em>failure</em></code></div>
 	
 	
 	<div class="method-subsection arguments-section parameters">
@@ -832,7 +854,7 @@
 		
 		<dl class="argument-def parameter-def">
 			<dt><em>success</em></dt>
-			<dd><p>A block object to be executed when the request operation finishes successfully, with a status code in the 2xx range, and with an acceptable content type (e.g. <code>application/json</code>). This block has no return value and takes a single argument, which is the response object created from the response data of request.</p></dd>
+			<dd><p>A block object to be executed when the request operation finishes successfully, with a status code in the 2xx range, and with an acceptable content type (e.g. <code>application/json</code>). This block has no return value and takes a single argument, which is an object created from the response data of request.</p></dd>
 		</dl>
 		
 		<dl class="argument-def parameter-def">
@@ -878,7 +900,7 @@
 	</div>		
 	
 	
-	<div class="method-subsection method-declaration"><code>- (void)getPath:(NSString *)<em>path</em> parameters:(NSDictionary *)<em>parameters</em> success:(void ( ^ ) ( id response ))<em>success</em> failure:(void ( ^ ) ( NSError *error ))<em>failure</em></code></div>
+	<div class="method-subsection method-declaration"><code>- (void)getPath:(NSString *)<em>path</em> parameters:(NSDictionary *)<em>parameters</em> success:(void ( ^ ) ( id object ))<em>success</em> failure:(void ( ^ ) ( NSHTTPURLResponse *response , NSError *error ))<em>failure</em></code></div>
 	
 	
 	<div class="method-subsection arguments-section parameters">
@@ -994,11 +1016,11 @@
 	
 	
 	<div class="method-subsection brief-description">
-		<p>Creates an <code>NSMutableURLRequest</code> object with the specified HTTP method and path, and constructs a <code>multipart/form-data</code> HTTP body, using the specified parameters and multipart form data block.</p>
+		<p>Creates an <code>NSMutableURLRequest</code> object with the specified HTTP method and path, and constructs a <code>multipart/form-data</code> HTTP body, using the specified parameters and multipart form data block. See <a href="http://www.w3.org/TR/html4/interact/forms.html">http://www.w3.org/TR/html4/interact/forms.html</a>#h-17.13.4.2</p>
 	</div>		
 	
 	
-	<div class="method-subsection method-declaration"><code>- (NSMutableURLRequest *)multipartFormRequestWithMethod:(NSString *)<em>method</em> path:(NSString *)<em>path</em> parameters:(NSDictionary *)<em>parameters</em> constructingBodyWithBlock:(void ( ^ ) ( id&lt;AFMultipartFormDataProxy&gt; formData ))<em>block</em></code></div>
+	<div class="method-subsection method-declaration"><code>- (NSMutableURLRequest *)multipartFormRequestWithMethod:(NSString *)<em>method</em> path:(NSString *)<em>path</em> parameters:(NSDictionary *)<em>parameters</em> constructingBodyWithBlock:(void ( ^ ) ( id&lt;AFMultipartFormData&gt; formData ))<em>block</em></code></div>
 	
 	
 	<div class="method-subsection arguments-section parameters">
@@ -1021,7 +1043,7 @@
 		
 		<dl class="argument-def parameter-def">
 			<dt><em>block</em></dt>
-			<dd><p>A block that takes a single argument and appends data to the HTTP body. The block argument is an object adopting the <a href="../Protocols/AFMultipartFormDataProxy.html"><code>AFMultipartFormDataProxy</code></a> protocol. This can be used to upload files, encode HTTP body as JSON or XML, or specify multiple values for the same parameter, as one might for array values.</p></dd>
+			<dd><p>A block that takes a single argument and appends data to the HTTP body. The block argument is an object adopting the <a href="../Protocols/AFMultipartFormData.html"><code>AFMultipartFormData</code></a> protocol. This can be used to upload files, encode HTTP body as JSON or XML, or specify multiple values for the same parameter, as one might for array values.</p></dd>
 		</dl>
 		
 	</div>
@@ -1039,7 +1061,7 @@
 	
 	<div class="method-subsection discussion-section">
 		<h4 class="method-subtitle">Discussion</h4>
-		<p>Creates an <code>NSMutableURLRequest</code> object with the specified HTTP method and path, and constructs a <code>multipart/form-data</code> HTTP body, using the specified parameters and multipart form data block.</p>
+		<p>Creates an <code>NSMutableURLRequest</code> object with the specified HTTP method and path, and constructs a <code>multipart/form-data</code> HTTP body, using the specified parameters and multipart form data block. See <a href="http://www.w3.org/TR/html4/interact/forms.html">http://www.w3.org/TR/html4/interact/forms.html</a>#h-17.13.4.2</p>
 	</div>
 	
 	
@@ -1050,7 +1072,7 @@
 		<h4 class="method-subtitle">See Also</h4>
 		<ul>
 			
-			<li><code><p><a href="../Protocols/AFMultipartFormDataProxy.html">AFMultipartFormDataProxy</a></p></code></li>
+			<li><code><p><a href="../Protocols/AFMultipartFormData.html">AFMultipartFormData</a></p></code></li>
 			
 		</ul>
 	</div>
@@ -1076,7 +1098,7 @@
 	</div>		
 	
 	
-	<div class="method-subsection method-declaration"><code>- (void)postPath:(NSString *)<em>path</em> parameters:(NSDictionary *)<em>parameters</em> success:(void ( ^ ) ( id response ))<em>success</em> failure:(void ( ^ ) ( NSError *error ))<em>failure</em></code></div>
+	<div class="method-subsection method-declaration"><code>- (void)postPath:(NSString *)<em>path</em> parameters:(NSDictionary *)<em>parameters</em> success:(void ( ^ ) ( id object ))<em>success</em> failure:(void ( ^ ) ( NSHTTPURLResponse *response , NSError *error ))<em>failure</em></code></div>
 	
 	
 	<div class="method-subsection arguments-section parameters">
@@ -1140,7 +1162,7 @@
 	</div>		
 	
 	
-	<div class="method-subsection method-declaration"><code>- (void)putPath:(NSString *)<em>path</em> parameters:(NSDictionary *)<em>parameters</em> success:(void ( ^ ) ( id response ))<em>success</em> failure:(void ( ^ ) ( NSError *error ))<em>failure</em></code></div>
+	<div class="method-subsection method-declaration"><code>- (void)putPath:(NSString *)<em>path</em> parameters:(NSDictionary *)<em>parameters</em> success:(void ( ^ ) ( id object ))<em>success</em> failure:(void ( ^ ) ( NSHTTPURLResponse *response , NSError *error ))<em>failure</em></code></div>
 	
 	
 	<div class="method-subsection arguments-section parameters">
@@ -1427,7 +1449,7 @@
 				<div id="footer">
 					<hr />
 					<div class="footer-copyright">
-						<p><span class="copyright">&copy; 2011 Gowalla. All rights reserved. (Last updated: 2011-09-22)</span><br />
+						<p><span class="copyright">&copy; 2011 Gowalla. All rights reserved. (Last updated: 2011-09-26)</span><br />
 						
 						<span class="generator">Generated by <a href="http://appledoc.gentlebytes.com">appledoc 2.0.4 (build 703)</a>.</span></p>
 						

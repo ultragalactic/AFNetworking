@@ -44,7 +44,7 @@
 	
 	<option value="//api/name/operationWithRequest:completion:">&nbsp;&nbsp;&nbsp;&nbsp;+ operationWithRequest:completion:</option>
 	
-	<option value="//api/name/operationWithRequest:inputStream:outputStream:completion:">&nbsp;&nbsp;&nbsp;&nbsp;+ operationWithRequest:inputStream:outputStream:completion:</option>
+	<option value="//api/name/streamingOperationWithRequest:inputStream:outputStream:completion:">&nbsp;&nbsp;&nbsp;&nbsp;+ streamingOperationWithRequest:inputStream:outputStream:completion:</option>
 	
 	
 	
@@ -87,7 +87,7 @@
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/operationWithRequest:completion:">operationWithRequest:completion:</a></span></li>
 	
-	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/operationWithRequest:inputStream:outputStream:completion:">operationWithRequest:inputStream:outputStream:completion:</a></span></li>
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/streamingOperationWithRequest:inputStream:outputStream:completion:">streamingOperationWithRequest:inputStream:outputStream:completion:</a></span></li>
 	
 </ul></li>
 
@@ -144,9 +144,27 @@
 
 <p>For instance, <a href="../Classes/AFJSONRequestOperation.html"><code>AFJSONRequestOperation</code></a> makes a distinction between successful and unsuccessful requests by validating the HTTP status code and content type of the response, and provides separate callbacks for both the succeeding and failing cases. As another example, <a href="../Classes/AFImageRequestOperation.html"><code>AFImageRequestOperation</code></a> offers a pared-down callback, with a single block argument that is an image object that was created from the response data.</p>
 
-<h2>Methods to subclass</h2>
+<h2>Methods to Subclass</h2>
 
 <p>Unless you need to override specific <code>NSURLConnection</code> delegate methods, you shouldn&rsquo;t need to subclass any methods. Instead, you should provide alternative constructor class methods, that are essentially wrappers around the callback from <a href="AFHTTPRequestOperation.html"><code>AFHTTPRequestOperation</code></a>.</p>
+
+<h3><code>NSURLConnection</code> Delegate Methods</h3>
+
+<p>Notably, <a href="AFHTTPRequestOperation.html"><code>AFHTTPRequestOperation</code></a> does not implement any of the authentication challenge-related <code>NSURLConnection</code> delegate methods.</p>
+
+<p><a href="AFHTTPRequestOperation.html"><code>AFHTTPRequestOperation</code></a> does implement the following <code>NSURLConnection</code> delegate methods:</p>
+
+<ul>
+<li><code>connection:didReceiveResponse:</code></li>
+<li><code>connection:didReceiveData:</code></li>
+<li><code>connectionDidFinishLoading:</code></li>
+<li><code>connection:didFailWithError:</code></li>
+<li><code>connection:didSendBodyData:totalBytesWritten:totalBytesExpectedToWrite:</code></li>
+<li><code>connection:willCacheResponse:</code></li>
+</ul>
+
+
+<p>If you overwrite any of the above methods, be sure to make the call to <code>super</code> first, or else it may cause unexpected results.</p>
 					</div>
 					
 					
@@ -171,8 +189,8 @@
 	
 </li><li>
 	<span class="tooltip">
-		<code><a href="#//api/name/operationWithRequest:inputStream:outputStream:completion:">+&nbsp;operationWithRequest:inputStream:outputStream:completion:</a></code>
-		<span class="tooltip"><p>Creates and returns a streaming <a href="AFHTTPRequestOperation.html"><code>AFHTTPRequestOperation</code></a> object and sets the specified input and output streams, and completion callback.</p></span>
+		<code><a href="#//api/name/streamingOperationWithRequest:inputStream:outputStream:completion:">+&nbsp;streamingOperationWithRequest:inputStream:outputStream:completion:</a></code>
+		<span class="tooltip"><p>Creates and returns a streaming <a href="AFHTTPRequestOperation.html"><code>AFHTTPRequestOperation</code></a> object and sets the specified input stream, output stream, and completion callback.</p></span>
 	</span>
 	
 	
@@ -273,17 +291,17 @@
 </div>
 						
 						<div class="section-method">
-	<a name="//api/name/operationWithRequest:inputStream:outputStream:completion:" title="operationWithRequest:inputStream:outputStream:completion:"></a>
-	<h3 class="subsubtitle method-title">operationWithRequest:inputStream:outputStream:completion:</h3>
+	<a name="//api/name/streamingOperationWithRequest:inputStream:outputStream:completion:" title="streamingOperationWithRequest:inputStream:outputStream:completion:"></a>
+	<h3 class="subsubtitle method-title">streamingOperationWithRequest:inputStream:outputStream:completion:</h3>
 	
 	
 	
 	<div class="method-subsection brief-description">
-		<p>Creates and returns a streaming <a href="AFHTTPRequestOperation.html"><code>AFHTTPRequestOperation</code></a> object and sets the specified input and output streams, and completion callback.</p>
+		<p>Creates and returns a streaming <a href="AFHTTPRequestOperation.html"><code>AFHTTPRequestOperation</code></a> object and sets the specified input stream, output stream, and completion callback.</p>
 	</div>		
 	
 	
-	<div class="method-subsection method-declaration"><code>+ (AFHTTPRequestOperation *)operationWithRequest:(NSURLRequest *)<em>urlRequest</em> inputStream:(NSInputStream *)<em>inputStream</em> outputStream:(NSOutputStream *)<em>outputStream</em> completion:(void ( ^ ) ( NSURLRequest *request , NSHTTPURLResponse *response , NSError *error ))<em>completion</em></code></div>
+	<div class="method-subsection method-declaration"><code>+ (AFHTTPRequestOperation *)streamingOperationWithRequest:(NSURLRequest *)<em>urlRequest</em> inputStream:(NSInputStream *)<em>inputStream</em> outputStream:(NSOutputStream *)<em>outputStream</em> completion:(void ( ^ ) ( NSURLRequest *request , NSHTTPURLResponse *response , NSError *error ))<em>completion</em></code></div>
 	
 	
 	<div class="method-subsection arguments-section parameters">
@@ -296,7 +314,7 @@
 		
 		<dl class="argument-def parameter-def">
 			<dt><em>inputStream</em></dt>
-			<dd><p>The input stream object for reading data to be sent during the request. If set, the input stream is set as the HTTPBodyStream on the NSMutableURLRequest, and the request method is changed to <code>POST</code>. This argument may be <code>nil</code>.</p></dd>
+			<dd><p>The input stream object for reading data to be sent during the request. If set, the input stream is set as the <code>HTTPBodyStream</code> on the <code>NSMutableURLRequest</code>. If the request method is <code>GET</code>, it is changed to <code>POST</code>. This argument may be <code>nil</code>.</p></dd>
 		</dl>
 		
 		<dl class="argument-def parameter-def">
@@ -306,7 +324,7 @@
 		
 		<dl class="argument-def parameter-def">
 			<dt><em>completion</em></dt>
-			<dd><p>A block object to be executed when the HTTP request operation is finished. This block has no return value and takes four arguments: the request sent from the client, the response received from the server, the NSData received by the server during the execution of the request, and an error, which will have been set if an error occured while loading the request. This argument may be <code>nil</code>.</p></dd>
+			<dd><p>A block object to be executed when the HTTP request operation is finished. This block has no return value and takes four arguments: the request sent from the client, the response received from the server, the data received by the server during the execution of the request, and an error, which will have been set if an error occured while loading the request. This argument may be <code>nil</code>.</p></dd>
 		</dl>
 		
 	</div>
@@ -315,7 +333,7 @@
 	
 	<div class="method-subsection return">
 		<h4 class="method-subtitle parameter-title">Return Value</h4>
-		<p>A new HTTP request operation</p>
+		<p>A new streaming HTTP request operation</p>
 	</div>
 	
 	
@@ -324,7 +342,7 @@
 	
 	<div class="method-subsection discussion-section">
 		<h4 class="method-subtitle">Discussion</h4>
-		<p>Creates and returns a streaming <a href="AFHTTPRequestOperation.html"><code>AFHTTPRequestOperation</code></a> object and sets the specified input and output streams, and completion callback.</p>
+		<p>Creates and returns a streaming <a href="AFHTTPRequestOperation.html"><code>AFHTTPRequestOperation</code></a> object and sets the specified input stream, output stream, and completion callback.</p>
 	</div>
 	
 	
@@ -360,7 +378,7 @@
 	</div>		
 	
 	
-	<div class="method-subsection method-declaration"><code>- (void)setDownloadProgressBlock:(void ( ^ ) ( NSUInteger totalBytesRead , NSUInteger totalBytesExpectedToRead ))<em>block</em></code></div>
+	<div class="method-subsection method-declaration"><code>- (void)setDownloadProgressBlock:(void ( ^ ) ( NSInteger bytesRead , NSInteger totalBytesRead , NSInteger totalBytesExpectedToRead ))<em>block</em></code></div>
 	
 	
 	<div class="method-subsection arguments-section parameters">
@@ -368,7 +386,7 @@
 		
 		<dl class="argument-def parameter-def">
 			<dt><em>block</em></dt>
-			<dd><p>A block object to be called when an undetermined number of bytes have been uploaded to the server. This block has no return value and takes two arguments: the total bytes read, and the total bytes expected to be read during the request, as initially determined by the expected content size of the <code>NSHTTPURLResponse</code> object. This block may be called multiple times.</p></dd>
+			<dd><p>A block object to be called when an undetermined number of bytes have been uploaded to the server. This block has no return value and takes three arguments: the number of bytes read since the last time the upload progress block was called, the total bytes read, and the total bytes expected to be read during the request, as initially determined by the expected content size of the <code>NSHTTPURLResponse</code> object. This block may be called multiple times.</p></dd>
 		</dl>
 		
 	</div>
@@ -409,7 +427,7 @@
 	</div>		
 	
 	
-	<div class="method-subsection method-declaration"><code>- (void)setUploadProgressBlock:(void ( ^ ) ( NSUInteger totalBytesWritten , NSUInteger totalBytesExpectedToWrite ))<em>block</em></code></div>
+	<div class="method-subsection method-declaration"><code>- (void)setUploadProgressBlock:(void ( ^ ) ( NSInteger bytesWritten , NSInteger totalBytesWritten , NSInteger totalBytesExpectedToWrite ))<em>block</em></code></div>
 	
 	
 	<div class="method-subsection arguments-section parameters">
@@ -417,7 +435,7 @@
 		
 		<dl class="argument-def parameter-def">
 			<dt><em>block</em></dt>
-			<dd><p>A block object to be called when an undetermined number of bytes have been downloaded from the server. This block has no return value and takes two arguments: the total bytes written, and the total bytes expected to be written during the request, as initially determined by the length of the HTTP body. This block may be called multiple times.</p></dd>
+			<dd><p>A block object to be called when an undetermined number of bytes have been downloaded from the server. This block has no return value and takes three arguments: the number of bytes written since the last time the upload progress block was called, the total bytes written, and the total bytes expected to be written during the request, as initially determined by the length of the HTTP body. This block may be called multiple times.</p></dd>
 		</dl>
 		
 	</div>
@@ -460,7 +478,7 @@
 				<div id="footer">
 					<hr />
 					<div class="footer-copyright">
-						<p><span class="copyright">&copy; 2011 Gowalla. All rights reserved. (Last updated: 2011-09-22)</span><br />
+						<p><span class="copyright">&copy; 2011 Gowalla. All rights reserved. (Last updated: 2011-09-26)</span><br />
 						
 						<span class="generator">Generated by <a href="http://appledoc.gentlebytes.com">appledoc 2.0.4 (build 703)</a>.</span></p>
 						
