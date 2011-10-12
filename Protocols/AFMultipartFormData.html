@@ -46,8 +46,6 @@
 	
 	<option value="//api/name/appendData:">&nbsp;&nbsp;&nbsp;&nbsp;- appendData:</option>
 	
-	<option value="//api/name/appendPartWithFile:mimeType:fileName:error:">&nbsp;&nbsp;&nbsp;&nbsp;- appendPartWithFile:mimeType:fileName:error:</option>
-	
 	<option value="//api/name/appendPartWithFileData:mimeType:name:">&nbsp;&nbsp;&nbsp;&nbsp;- appendPartWithFileData:mimeType:name:</option>
 	
 	<option value="//api/name/appendPartWithFormData:name:">&nbsp;&nbsp;&nbsp;&nbsp;- appendPartWithFormData:name:</option>
@@ -85,8 +83,6 @@
 <li role="treeitem" class="children"><span class="disclosure"></span><span class="sectionName"><a href="#instance_methods">Instance Methods</a></span><ul>
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/appendData:">appendData:</a></span></li>
-	
-	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/appendPartWithFile:mimeType:fileName:error:">appendPartWithFile:mimeType:fileName:error:</a></span></li>
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/appendPartWithFileData:mimeType:name:">appendPartWithFileData:mimeType:name:</a></span></li>
 	
@@ -169,13 +165,6 @@
 	<span class="task-item-suffix">required method</span>
 </li><li>
 	<span class="tooltip">
-		<code><a href="#//api/name/appendPartWithFile:mimeType:fileName:error:">&ndash;&nbsp;appendPartWithFile:mimeType:fileName:error:</a></code>
-		<span class="tooltip"><p>Appends the HTTP header <code>Content-Disposition: file; filename=#{filename}"</code> and <code>Content-Type: #{mimeType}</code>, followed by the encoded file data and the multipart form boundary.</p></span>
-	</span>
-	
-	<span class="task-item-suffix">required method</span>
-</li><li>
-	<span class="tooltip">
 		<code><a href="#//api/name/appendData:">&ndash;&nbsp;appendData:</a></code>
 		<span class="tooltip"><p>Appends encoded data to the form data.</p></span>
 	</span>
@@ -238,70 +227,6 @@
 	<div class="method-subsection discussion-section">
 		<h4 class="method-subtitle">Discussion</h4>
 		<p>Appends encoded data to the form data.</p>
-	</div>
-	
-	
-	
-	
-	
-	
-	
-	<div class="method-subsection declared-in-section">
-		<h4 class="method-subtitle">Declared In</h4>
-		<code class="declared-in-ref">AFHTTPClient.h</code><br />
-	</div>				
-	
-	
-</div>
-						
-						<div class="section-method">
-	<a name="//api/name/appendPartWithFile:mimeType:fileName:error:" title="appendPartWithFile:mimeType:fileName:error:"></a>
-	<h3 class="subsubtitle method-title">appendPartWithFile:mimeType:fileName:error:</h3>
-	
-	
-	
-	<div class="method-subsection brief-description">
-		<p>Appends the HTTP header <code>Content-Disposition: file; filename=#{filename}"</code> and <code>Content-Type: #{mimeType}</code>, followed by the encoded file data and the multipart form boundary.</p>
-	</div>		
-	
-	
-	<div class="method-subsection method-declaration"><code>- (void)appendPartWithFile:(NSURL *)<em>fileURL</em> mimeType:(NSString *)<em>mimeType</em> fileName:(NSString *)<em>fileName</em> error:(NSError **)<em>error</em></code></div>
-	
-	
-	<div class="method-subsection arguments-section parameters">
-		<h4 class="method-subtitle parameter-title">Parameters</h4>
-		
-		<dl class="argument-def parameter-def">
-			<dt><em>fileURL</em></dt>
-			<dd><p>The URL for the local file to have its contents appended to the form data. This parameter must not be <code>nil</code>.</p></dd>
-		</dl>
-		
-		<dl class="argument-def parameter-def">
-			<dt><em>mimeType</em></dt>
-			<dd><p>The MIME type of the specified data. (For example, the MIME type for a JPEG image is image/jpeg.) For a list of valid MIME types, see <a href="http://www.iana.org/assignments/media-types/.">http://www.iana.org/assignments/media-types/.</a> This parameter must not be <code>nil</code>.</p></dd>
-		</dl>
-		
-		<dl class="argument-def parameter-def">
-			<dt><em>fileName</em></dt>
-			<dd><p>The filename to be associated with the file contents. This parameter must not be <code>nil</code>.</p></dd>
-		</dl>
-		
-		<dl class="argument-def parameter-def">
-			<dt><em>error</em></dt>
-			<dd><p>If an error occurs, upon return contains an <code>NSError</code> object that describes the problem.</p></dd>
-		</dl>
-		
-	</div>
-	
-	
-	
-	
-	
-	
-	
-	<div class="method-subsection discussion-section">
-		<h4 class="method-subtitle">Discussion</h4>
-		<p>Appends the HTTP header <code>Content-Disposition: file; filename=#{filename}"</code> and <code>Content-Type: #{mimeType}</code>, followed by the encoded file data and the multipart form boundary.</p>
 	</div>
 	
 	
@@ -549,7 +474,7 @@
 				<div id="footer">
 					<hr />
 					<div class="footer-copyright">
-						<p><span class="copyright">&copy; 2011 Gowalla. All rights reserved. (Last updated: 2011-09-26)</span><br />
+						<p><span class="copyright">&copy; 2011 Gowalla. All rights reserved. (Last updated: 2011-10-12)</span><br />
 						
 						<span class="generator">Generated by <a href="http://appledoc.gentlebytes.com">appledoc 2.0.4 (build 703)</a>.</span></p>
 						
