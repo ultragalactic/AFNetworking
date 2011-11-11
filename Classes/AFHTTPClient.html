@@ -60,6 +60,8 @@
 	
 	<option value="instance_methods">Instance Methods</option>
 	
+	<option value="//api/name/HTTPRequestOperationWithRequest:success:failure:">&nbsp;&nbsp;&nbsp;&nbsp;- HTTPRequestOperationWithRequest:success:failure:</option>
+	
 	<option value="//api/name/cancelHTTPOperationsWithMethod:andURL:">&nbsp;&nbsp;&nbsp;&nbsp;- cancelHTTPOperationsWithMethod:andURL:</option>
 	
 	<option value="//api/name/clearAuthorizationHeader">&nbsp;&nbsp;&nbsp;&nbsp;- clearAuthorizationHeader</option>
@@ -69,8 +71,6 @@
 	<option value="//api/name/deletePath:parameters:success:failure:">&nbsp;&nbsp;&nbsp;&nbsp;- deletePath:parameters:success:failure:</option>
 	
 	<option value="//api/name/enqueueHTTPRequestOperation:">&nbsp;&nbsp;&nbsp;&nbsp;- enqueueHTTPRequestOperation:</option>
-	
-	<option value="//api/name/enqueueHTTPRequestOperationWithRequest:success:failure:">&nbsp;&nbsp;&nbsp;&nbsp;- enqueueHTTPRequestOperationWithRequest:success:failure:</option>
 	
 	<option value="//api/name/getPath:parameters:success:failure:">&nbsp;&nbsp;&nbsp;&nbsp;- getPath:parameters:success:failure:</option>
 	
@@ -120,9 +120,9 @@
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#task_Creating Request Objects">Creating Request Objects</a></span></li>
 	
-	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#task_Enqueuing HTTP Operations">Enqueuing HTTP Operations</a></span></li>
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#task_Creating HTTP Operations">Creating HTTP Operations</a></span></li>
 	
-	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#task_Cancelling HTTP Operations">Cancelling HTTP Operations</a></span></li>
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#task_Managing Enqueued HTTP Operations">Managing Enqueued HTTP Operations</a></span></li>
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#task_Making HTTP Requests">Making HTTP Requests</a></span></li>
 	
@@ -156,6 +156,8 @@
 
 <li role="treeitem" class="children"><span class="disclosure"></span><span class="sectionName"><a href="#instance_methods">Instance Methods</a></span><ul>
 	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/HTTPRequestOperationWithRequest:success:failure:">HTTPRequestOperationWithRequest:success:failure:</a></span></li>
+	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/cancelHTTPOperationsWithMethod:andURL:">cancelHTTPOperationsWithMethod:andURL:</a></span></li>
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/clearAuthorizationHeader">clearAuthorizationHeader</a></span></li>
@@ -165,8 +167,6 @@
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/deletePath:parameters:success:failure:">deletePath:parameters:success:failure:</a></span></li>
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/enqueueHTTPRequestOperation:">enqueueHTTPRequestOperation:</a></span></li>
-	
-	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/enqueueHTTPRequestOperationWithRequest:success:failure:">enqueueHTTPRequestOperationWithRequest:success:failure:</a></span></li>
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/getPath:parameters:success:failure:">getPath:parameters:success:failure:</a></span></li>
 	
@@ -231,7 +231,7 @@
 
 <h2>Automatic Content Parsing</h2>
 
-<p>Instances of <a href="AFHTTPClient.html"><code>AFHTTPClient</code></a> may specify which types of requests it expects and should handle by registering HTTP operation classes for automatic parsing. Registered classes will determine whether they can handle a particular request, and then construct a request operation accordingly in <code>enqueueHTTPRequestOperationWithRequest:success:failure</code>. See <a href="../Protocols/AFHTTPClientOperation.html"><code>AFHTTPClientOperation</code></a> for further details.</p>
+<p>Instances of <a href="AFHTTPClient.html"><code>AFHTTPClient</code></a> may specify which types of requests it expects and should handle by registering HTTP operation classes for automatic parsing. Registered classes will determine whether they can handle a particular request, and then construct a request operation accordingly in <code>enqueueHTTPRequestOperationWithRequest:success:failure</code>. See <code>AFHTTPClientOperation</code> for further details.</p>
 
 <h2>Subclassing Notes</h2>
 
@@ -255,6 +255,18 @@
 
 
 <p>You can override these HTTP headers or define new ones using <a href="#//api/name/setDefaultHeader:value:"><code>setDefaultHeader:value:</code></a>.</p>
+
+<h2>URL Construction Using Relative Paths</h2>
+
+<p>Both <code>requestWithMethod:path:parameters</code> and <a href="#//api/name/multipartFormRequestWithMethod:path:parameters:constructingBodyWithBlock:"><code>multipartFormRequestWithMethod:path:parameters:constructingBodyWithBlock:</code></a> construct URLs from the path relative to the <a href="#//api/name/baseURL"><code>baseURL</code></a>, using <code>NSURL +URLWithString:relativeToURL:</code>. Below are a few examples of how <a href="#//api/name/baseURL"><code>baseURL</code></a> and relative paths interract:</p>
+
+<p>NSURL *baseURL = [NSURL URLWithString:@&ldquo;http://example.com/v1/&rdquo;]<a href="http://example.com/v1/">http://example.com/v1/</a>&ldquo;];
+[NSURL URLWithString:@"foo&rdquo; relativeToURL:baseURL]; // <a href="http://example.com/v1/foo">http://example.com/v1/foo</a>
+[NSURL URLWithString:@&ldquo;foo?bar=baz&rdquo; relativeToURL:baseURL]; // <a href="http://example.com/v1/foo?bar=baz">http://example.com/v1/foo?bar=baz</a>
+[NSURL URLWithString:@&ldquo;/foo&rdquo; relativeToURL:baseURL]; // <a href="http://example.com/foo">http://example.com/foo</a>
+[NSURL URLWithString:@&ldquo;foo/&rdquo; relativeToURL:baseURL]; // <a href="http://example.com/v1/foo">http://example.com/v1/foo</a>
+[NSURL URLWithString:@&ldquo;/foo/&rdquo; relativeToURL:baseURL]; // <a href="http://example.com/foo/">http://example.com/foo/</a>
+[NSURL URLWithString:@&ldquo;<a href="http://example2.com/">http://example2.com/</a>&rdquo; relativeToURL:baseURL]; // <a href="http://example2.com/">http://example2.com/</a></p>
 					</div>
 					
 					
@@ -331,14 +343,14 @@
 							<li>
 	<span class="tooltip">
 		<code><a href="#//api/name/registerHTTPOperationClass:">&ndash;&nbsp;registerHTTPOperationClass:</a></code>
-		<span class="tooltip"><p>Attempts to register a class conforming to the <a href="../Protocols/AFHTTPClientOperation.html"><code>AFHTTPClientOperation</code></a> protocol, adding it to a chain to automatically generate request operations from a URL request.</p></span>
+		<span class="tooltip"><p>Attempts to register a subclass of <a href="../Classes/AFHTTPRequestOperation.html"><code>AFHTTPRequestOperation</code></a>, adding it to a chain to automatically generate request operations from a URL request.</p></span>
 	</span>
 	
 	
 </li><li>
 	<span class="tooltip">
 		<code><a href="#//api/name/unregisterHTTPOperationClass:">&ndash;&nbsp;unregisterHTTPOperationClass:</a></code>
-		<span class="tooltip"><p>Unregisteres the specified class conforming to the <a href="../Protocols/AFHTTPClientOperation.html"><code>AFHTTPClientOperation</code></a> protocol.</p></span>
+		<span class="tooltip"><p>Unregisters the specified subclass of <a href="../Classes/AFHTTPRequestOperation.html"><code>AFHTTPRequestOperation</code></a>.</p></span>
 	</span>
 	
 	
@@ -411,21 +423,14 @@
 						</ul>
 						
 						
-						<a title="Enqueuing HTTP Operations" name="task_Enqueuing HTTP Operations"></a>
-						<h3 class="subsubtitle task-title">Enqueuing HTTP Operations</h3>
+						<a title="Creating HTTP Operations" name="task_Creating HTTP Operations"></a>
+						<h3 class="subsubtitle task-title">Creating HTTP Operations</h3>
 
 						<ul class="task-list">
 							<li>
 	<span class="tooltip">
-		<code><a href="#//api/name/enqueueHTTPRequestOperationWithRequest:success:failure:">&ndash;&nbsp;enqueueHTTPRequestOperationWithRequest:success:failure:</a></code>
-		<span class="tooltip"><p>Creates and enqueues an <a href="../Classes/AFHTTPRequestOperation.html"><code>AFHTTPRequestOperation</code></a> to the HTTP client&rsquo;s operation queue.</p></span>
-	</span>
-	
-	
-</li><li>
-	<span class="tooltip">
-		<code><a href="#//api/name/enqueueHTTPRequestOperation:">&ndash;&nbsp;enqueueHTTPRequestOperation:</a></code>
-		<span class="tooltip"><p>Enqueues an <a href="../Classes/AFHTTPRequestOperation.html"><code>AFHTTPRequestOperation</code></a> to the HTTP client&rsquo;s operation queue.</p></span>
+		<code><a href="#//api/name/HTTPRequestOperationWithRequest:success:failure:">&ndash;&nbsp;HTTPRequestOperationWithRequest:success:failure:</a></code>
+		<span class="tooltip"><p>Creates an <a href="../Classes/AFHTTPRequestOperation.html"><code>AFHTTPRequestOperation</code></a></p></span>
 	</span>
 	
 	
@@ -433,11 +438,18 @@
 						</ul>
 						
 						
-						<a title="Cancelling HTTP Operations" name="task_Cancelling HTTP Operations"></a>
-						<h3 class="subsubtitle task-title">Cancelling HTTP Operations</h3>
+						<a title="Managing Enqueued HTTP Operations" name="task_Managing Enqueued HTTP Operations"></a>
+						<h3 class="subsubtitle task-title">Managing Enqueued HTTP Operations</h3>
 
 						<ul class="task-list">
 							<li>
+	<span class="tooltip">
+		<code><a href="#//api/name/enqueueHTTPRequestOperation:">&ndash;&nbsp;enqueueHTTPRequestOperation:</a></code>
+		<span class="tooltip"><p>Enqueues an <a href="../Classes/AFHTTPRequestOperation.html"><code>AFHTTPRequestOperation</code></a> to the HTTP client&rsquo;s operation queue.</p></span>
+	</span>
+	
+	
+</li><li>
 	<span class="tooltip">
 		<code><a href="#//api/name/cancelHTTPOperationsWithMethod:andURL:">&ndash;&nbsp;cancelHTTPOperationsWithMethod:andURL:</a></code>
 		<span class="tooltip"><p>Cancels all operations in the HTTP client&rsquo;s operation queue that match the specified HTTP method and URL.</p></span>
@@ -720,6 +732,67 @@
 						<h2 class="subtitle subtitle-methods">Instance Methods</h2>
 						
 						<div class="section-method">
+	<a name="//api/name/HTTPRequestOperationWithRequest:success:failure:" title="HTTPRequestOperationWithRequest:success:failure:"></a>
+	<h3 class="subsubtitle method-title">HTTPRequestOperationWithRequest:success:failure:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Creates an <a href="../Classes/AFHTTPRequestOperation.html"><code>AFHTTPRequestOperation</code></a></p>
+	</div>		
+	
+	
+	<div class="method-subsection method-declaration"><code>- (AFHTTPRequestOperation *)HTTPRequestOperationWithRequest:(NSURLRequest *)<em>request</em> success:(void ( ^ ) ( AFHTTPRequestOperation *operation , id responseObject ))<em>success</em> failure:(void ( ^ ) ( AFHTTPRequestOperation *operation , NSError *error ))<em>failure</em></code></div>
+	
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>request</em></dt>
+			<dd><p>The request object to be loaded asynchronously during execution of the operation.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>success</em></dt>
+			<dd><p>A block object to be executed when the request operation finishes successfully. This block has no return value and takes two arguments: the created request operation and the object created from the response data of request.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>failure</em></dt>
+			<dd><p>A block object to be executed when the request operation finishes unsuccessfully, or that finishes successfully, but encountered an error while parsing the resonse data. This block has no return value and takes two arguments:, the created request operation and the <code>NSError</code> object describing the network or parsing error that occurred.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>Creates an <a href="../Classes/AFHTTPRequestOperation.html"><code>AFHTTPRequestOperation</code></a></p>
+
+<p>In order to determine what kind of operation is created, each registered subclass conforming to the <a href="AFHTTPClient.html"><code>AFHTTPClient</code></a> protocol is consulted in turn to see if it can handle the specific request. The first class to return <code>YES</code> when sent a <code>canProcessRequest:</code> message is used to generate an operation using <a href="#//api/name/HTTPRequestOperationWithRequest:success:failure:"><code>HTTPRequestOperationWithRequest:success:failure:</code></a>.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">AFHTTPClient.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
 	<a name="//api/name/cancelHTTPOperationsWithMethod:andURL:" title="cancelHTTPOperationsWithMethod:andURL:"></a>
 	<h3 class="subsubtitle method-title">cancelHTTPOperationsWithMethod:andURL:</h3>
 	
@@ -877,7 +950,7 @@
 	</div>		
 	
 	
-	<div class="method-subsection method-declaration"><code>- (void)deletePath:(NSString *)<em>path</em> parameters:(NSDictionary *)<em>parameters</em> success:(void ( ^ ) ( id object ))<em>success</em> failure:(void ( ^ ) ( NSHTTPURLResponse *response , NSError *error ))<em>failure</em></code></div>
+	<div class="method-subsection method-declaration"><code>- (void)deletePath:(NSString *)<em>path</em> parameters:(NSDictionary *)<em>parameters</em> success:(void ( ^ ) ( AFHTTPRequestOperation *operation , id responseObject ))<em>success</em> failure:(void ( ^ ) ( AFHTTPRequestOperation *operation , NSError *error ))<em>failure</em></code></div>
 	
 	
 	<div class="method-subsection arguments-section parameters">
@@ -895,12 +968,12 @@
 		
 		<dl class="argument-def parameter-def">
 			<dt><em>success</em></dt>
-			<dd><p>A block object to be executed when the request operation finishes successfully, with a status code in the 2xx range, and with an acceptable content type (e.g. <code>application/json</code>). This block has no return value and takes a single argument, which is the response object created from the response data of request.</p></dd>
+			<dd><p>A block object to be executed when the request operation finishes successfully. This block has no return value and takes two arguments: the created request operation and the object created from the response data of request.</p></dd>
 		</dl>
 		
 		<dl class="argument-def parameter-def">
 			<dt><em>failure</em></dt>
-			<dd><p>A block object to be executed when the request operation finishes unsuccessfully, or that finishes successfully, but encountered an error while parsing the resonse data as JSON. This block has no return value and takes a single argument, which is the <code>NSError</code> object describing the network or parsing error that occurred.</p></dd>
+			<dd><p>A block object to be executed when the request operation finishes unsuccessfully, or that finishes successfully, but encountered an error while parsing the resonse data. This block has no return value and takes two arguments:, the created request operation and the <code>NSError</code> object describing the network or parsing error that occurred.</p></dd>
 		</dl>
 		
 	</div>
@@ -980,67 +1053,6 @@
 </div>
 						
 						<div class="section-method">
-	<a name="//api/name/enqueueHTTPRequestOperationWithRequest:success:failure:" title="enqueueHTTPRequestOperationWithRequest:success:failure:"></a>
-	<h3 class="subsubtitle method-title">enqueueHTTPRequestOperationWithRequest:success:failure:</h3>
-	
-	
-	
-	<div class="method-subsection brief-description">
-		<p>Creates and enqueues an <a href="../Classes/AFHTTPRequestOperation.html"><code>AFHTTPRequestOperation</code></a> to the HTTP client&rsquo;s operation queue.</p>
-	</div>		
-	
-	
-	<div class="method-subsection method-declaration"><code>- (void)enqueueHTTPRequestOperationWithRequest:(NSURLRequest *)<em>request</em> success:(void ( ^ ) ( id object ))<em>success</em> failure:(void ( ^ ) ( NSHTTPURLResponse *response , NSError *error ))<em>failure</em></code></div>
-	
-	
-	<div class="method-subsection arguments-section parameters">
-		<h4 class="method-subtitle parameter-title">Parameters</h4>
-		
-		<dl class="argument-def parameter-def">
-			<dt><em>request</em></dt>
-			<dd><p>The request object to be loaded asynchronously during execution of the operation.</p></dd>
-		</dl>
-		
-		<dl class="argument-def parameter-def">
-			<dt><em>success</em></dt>
-			<dd><p>A block object to be executed when the request operation finishes successfully. This block has no return value and takes a single argument, which is an object created from the response data of request.</p></dd>
-		</dl>
-		
-		<dl class="argument-def parameter-def">
-			<dt><em>failure</em></dt>
-			<dd><p>A block object to be executed when the request operation finishes unsuccessfully, or that finishes successfully, but encountered an error while parsing the resonse data. This block has no return value and takes a single argument, which is the <code>NSError</code> object describing the network or parsing error that occurred.</p></dd>
-		</dl>
-		
-	</div>
-	
-	
-	
-	
-	
-	
-	
-	<div class="method-subsection discussion-section">
-		<h4 class="method-subtitle">Discussion</h4>
-		<p>Creates and enqueues an <a href="../Classes/AFHTTPRequestOperation.html"><code>AFHTTPRequestOperation</code></a> to the HTTP client&rsquo;s operation queue.</p>
-
-<p>In order to determine what kind of operation is enqueued, each registered subclass conforming to the <a href="AFHTTPClient.html"><code>AFHTTPClient</code></a> protocol is consulted in turn to see if it can handle the specific request. The first class to return <code>YES</code> when sent a <code>canProcessRequest:</code> message is used to generate an operation using <code>HTTPRequestOperationWithRequest:success:failure:</code>.</p>
-	</div>
-	
-	
-	
-	
-	
-	
-	
-	<div class="method-subsection declared-in-section">
-		<h4 class="method-subtitle">Declared In</h4>
-		<code class="declared-in-ref">AFHTTPClient.h</code><br />
-	</div>				
-	
-	
-</div>
-						
-						<div class="section-method">
 	<a name="//api/name/getPath:parameters:success:failure:" title="getPath:parameters:success:failure:"></a>
 	<h3 class="subsubtitle method-title">getPath:parameters:success:failure:</h3>
 	
@@ -1051,7 +1063,7 @@
 	</div>		
 	
 	
-	<div class="method-subsection method-declaration"><code>- (void)getPath:(NSString *)<em>path</em> parameters:(NSDictionary *)<em>parameters</em> success:(void ( ^ ) ( id object ))<em>success</em> failure:(void ( ^ ) ( NSHTTPURLResponse *response , NSError *error ))<em>failure</em></code></div>
+	<div class="method-subsection method-declaration"><code>- (void)getPath:(NSString *)<em>path</em> parameters:(NSDictionary *)<em>parameters</em> success:(void ( ^ ) ( AFHTTPRequestOperation *operation , id responseObject ))<em>success</em> failure:(void ( ^ ) ( AFHTTPRequestOperation *operation , NSError *error ))<em>failure</em></code></div>
 	
 	
 	<div class="method-subsection arguments-section parameters">
@@ -1069,12 +1081,12 @@
 		
 		<dl class="argument-def parameter-def">
 			<dt><em>success</em></dt>
-			<dd><p>A block object to be executed when the request operation finishes successfully, with a status code in the 2xx range, and with an acceptable content type (e.g. <code>application/json</code>). This block has no return value and takes a single argument, which is the response object created from the response data of request.</p></dd>
+			<dd><p>A block object to be executed when the request operation finishes successfully. This block has no return value and takes two arguments: the created request operation and the object created from the response data of request.</p></dd>
 		</dl>
 		
 		<dl class="argument-def parameter-def">
 			<dt><em>failure</em></dt>
-			<dd><p>A block object to be executed when the request operation finishes unsuccessfully, or that finishes successfully, but encountered an error while parsing the resonse data as JSON. This block has no return value and takes a single argument, which is the <code>NSError</code> object describing the network or parsing error that occurred.</p></dd>
+			<dd><p>A block object to be executed when the request operation finishes unsuccessfully, or that finishes successfully, but encountered an error while parsing the resonse data. This block has no return value and takes two arguments:, the created request operation and the <code>NSError</code> object describing the network or parsing error that occurred.</p></dd>
 		</dl>
 		
 	</div>
@@ -1219,15 +1231,6 @@
 	
 	
 	
-	<div class="method-subsection see-also-section">
-		<h4 class="method-subtitle">See Also</h4>
-		<ul>
-			
-			<li><code><p><a href="../Protocols/AFMultipartFormData.html">AFMultipartFormData</a></p></code></li>
-			
-		</ul>
-	</div>
-	
 	
 	
 	<div class="method-subsection declared-in-section">
@@ -1249,7 +1252,7 @@
 	</div>		
 	
 	
-	<div class="method-subsection method-declaration"><code>- (void)postPath:(NSString *)<em>path</em> parameters:(NSDictionary *)<em>parameters</em> success:(void ( ^ ) ( id object ))<em>success</em> failure:(void ( ^ ) ( NSHTTPURLResponse *response , NSError *error ))<em>failure</em></code></div>
+	<div class="method-subsection method-declaration"><code>- (void)postPath:(NSString *)<em>path</em> parameters:(NSDictionary *)<em>parameters</em> success:(void ( ^ ) ( AFHTTPRequestOperation *operation , id responseObject ))<em>success</em> failure:(void ( ^ ) ( AFHTTPRequestOperation *operation , NSError *error ))<em>failure</em></code></div>
 	
 	
 	<div class="method-subsection arguments-section parameters">
@@ -1267,12 +1270,12 @@
 		
 		<dl class="argument-def parameter-def">
 			<dt><em>success</em></dt>
-			<dd><p>A block object to be executed when the request operation finishes successfully, with a status code in the 2xx range, and with an acceptable content type (e.g. <code>application/json</code>). This block has no return value and takes a single argument, which is the response object created from the response data of request.</p></dd>
+			<dd><p>A block object to be executed when the request operation finishes successfully. This block has no return value and takes two arguments: the created request operation and the object created from the response data of request.</p></dd>
 		</dl>
 		
 		<dl class="argument-def parameter-def">
 			<dt><em>failure</em></dt>
-			<dd><p>A block object to be executed when the request operation finishes unsuccessfully, or that finishes successfully, but encountered an error while parsing the resonse data as JSON. This block has no return value and takes a single argument, which is the <code>NSError</code> object describing the network or parsing error that occurred.</p></dd>
+			<dd><p>A block object to be executed when the request operation finishes unsuccessfully, or that finishes successfully, but encountered an error while parsing the resonse data. This block has no return value and takes two arguments:, the created request operation and the <code>NSError</code> object describing the network or parsing error that occurred.</p></dd>
 		</dl>
 		
 	</div>
@@ -1313,7 +1316,7 @@
 	</div>		
 	
 	
-	<div class="method-subsection method-declaration"><code>- (void)putPath:(NSString *)<em>path</em> parameters:(NSDictionary *)<em>parameters</em> success:(void ( ^ ) ( id object ))<em>success</em> failure:(void ( ^ ) ( NSHTTPURLResponse *response , NSError *error ))<em>failure</em></code></div>
+	<div class="method-subsection method-declaration"><code>- (void)putPath:(NSString *)<em>path</em> parameters:(NSDictionary *)<em>parameters</em> success:(void ( ^ ) ( AFHTTPRequestOperation *operation , id responseObject ))<em>success</em> failure:(void ( ^ ) ( AFHTTPRequestOperation *operation , NSError *error ))<em>failure</em></code></div>
 	
 	
 	<div class="method-subsection arguments-section parameters">
@@ -1331,12 +1334,12 @@
 		
 		<dl class="argument-def parameter-def">
 			<dt><em>success</em></dt>
-			<dd><p>A block object to be executed when the request operation finishes successfully, with a status code in the 2xx range, and with an acceptable content type (e.g. <code>application/json</code>). This block has no return value and takes a single argument, which is the response object created from the response data of request.</p></dd>
+			<dd><p>A block object to be executed when the request operation finishes successfully. This block has no return value and takes two arguments: the created request operation and the object created from the response data of request.</p></dd>
 		</dl>
 		
 		<dl class="argument-def parameter-def">
 			<dt><em>failure</em></dt>
-			<dd><p>A block object to be executed when the request operation finishes unsuccessfully, or that finishes successfully, but encountered an error while parsing the resonse data as JSON. This block has no return value and takes a single argument, which is the <code>NSError</code> object describing the network or parsing error that occurred.</p></dd>
+			<dd><p>A block object to be executed when the request operation finishes unsuccessfully, or that finishes successfully, but encountered an error while parsing the resonse data. This block has no return value and takes two arguments:, the created request operation and the <code>NSError</code> object describing the network or parsing error that occurred.</p></dd>
 		</dl>
 		
 	</div>
@@ -1373,7 +1376,7 @@
 	
 	
 	<div class="method-subsection brief-description">
-		<p>Attempts to register a class conforming to the <a href="../Protocols/AFHTTPClientOperation.html"><code>AFHTTPClientOperation</code></a> protocol, adding it to a chain to automatically generate request operations from a URL request.</p>
+		<p>Attempts to register a subclass of <a href="../Classes/AFHTTPRequestOperation.html"><code>AFHTTPRequestOperation</code></a>, adding it to a chain to automatically generate request operations from a URL request.</p>
 	</div>		
 	
 	
@@ -1385,7 +1388,7 @@
 		
 		<dl class="argument-def parameter-def">
 			<dt><em>The</em></dt>
-			<dd><p>class conforming to the <a href="../Protocols/AFHTTPClientOperation.html"><code>AFHTTPClientOperation</code></a> protocol to register</p></dd>
+			<dd><p>subclass of <a href="../Classes/AFHTTPRequestOperation.html"><code>AFHTTPRequestOperation</code></a> to register</p></dd>
 		</dl>
 		
 	</div>
@@ -1394,9 +1397,9 @@
 	
 	<div class="method-subsection return">
 		<h4 class="method-subtitle parameter-title">Return Value</h4>
-		<p><code>YES</code> if the registration is successful, <code>NO</code> otherwise. The only failure condition is if <code>operationClass</code> does not conform to the <code>AFHTTPCLientOperation</code> protocol.</p>
+		<p><code>YES</code> if the registration is successful, <code>NO</code> otherwise. The only failure condition is if <code>operationClass</code> does is not a subclass of <a href="../Classes/AFHTTPRequestOperation.html"><code>AFHTTPRequestOperation</code></a>.</p>
 
-<p>@discussion When <code>enqueueHTTPRequestOperationWithRequest:success:failure</code> is invoked, each registered class is consulted in turn to see if it can handle the specific request. The first class to return <code>YES</code> when sent a <code>canProcessRequest:</code> message is used to generate an operation using <code>HTTPRequestOperationWithRequest:success:failure:</code>. There is no guarantee that all registered classes will be consulted. Classes are consulted in the reverse order of their registration. Attempting to register an already-registered class will move it to the top of the chain.</p>
+<p>@discussion When <code>enqueueHTTPRequestOperationWithRequest:success:failure</code> is invoked, each registered class is consulted in turn to see if it can handle the specific request. The first class to return <code>YES</code> when sent a <code>canProcessRequest:</code> message is used to create an operation using <code>initWithURLRequest:</code> and do <code>setCompletionBlockWithSuccess:failure:</code>. There is no guarantee that all registered classes will be consulted. Classes are consulted in the reverse order of their registration. Attempting to register an already-registered class will move it to the top of the list.</p>
 	</div>
 	
 	
@@ -1405,7 +1408,7 @@
 	
 	<div class="method-subsection discussion-section">
 		<h4 class="method-subtitle">Discussion</h4>
-		<p>Attempts to register a class conforming to the <a href="../Protocols/AFHTTPClientOperation.html"><code>AFHTTPClientOperation</code></a> protocol, adding it to a chain to automatically generate request operations from a URL request.</p>
+		<p>Attempts to register a subclass of <a href="../Classes/AFHTTPRequestOperation.html"><code>AFHTTPRequestOperation</code></a>, adding it to a chain to automatically generate request operations from a URL request.</p>
 	</div>
 	
 	
@@ -1477,15 +1480,6 @@
 	
 	
 	
-	
-	<div class="method-subsection see-also-section">
-		<h4 class="method-subtitle">See Also</h4>
-		<ul>
-			
-			<li><code><p><a href="../Protocols/AFHTTPClientOperation.html">AFHTTPClientOperation</a></p></code></li>
-			
-		</ul>
-	</div>
 	
 	
 	
@@ -1661,7 +1655,7 @@
 	
 	
 	<div class="method-subsection brief-description">
-		<p>Unregisteres the specified class conforming to the <a href="../Protocols/AFHTTPClientOperation.html"><code>AFHTTPClientOperation</code></a> protocol.</p>
+		<p>Unregisters the specified subclass of <a href="../Classes/AFHTTPRequestOperation.html"><code>AFHTTPRequestOperation</code></a>.</p>
 	</div>		
 	
 	
@@ -1673,7 +1667,7 @@
 		
 		<dl class="argument-def parameter-def">
 			<dt><em>The</em></dt>
-			<dd><p>class conforming to the <a href="../Protocols/AFHTTPClientOperation.html"><code>AFHTTPClientOperation</code></a> protocol to unregister</p>
+			<dd><p>class conforming to the <code>AFHTTPClientOperation</code> protocol to unregister</p>
 
 <p>@discussion After this method is invoked, <code>operationClass</code> is no longer consulted when <code>requestWithMethod:path:parameters</code> is invoked.</p></dd>
 		</dl>
@@ -1688,7 +1682,7 @@
 	
 	<div class="method-subsection discussion-section">
 		<h4 class="method-subtitle">Discussion</h4>
-		<p>Unregisteres the specified class conforming to the <a href="../Protocols/AFHTTPClientOperation.html"><code>AFHTTPClientOperation</code></a> protocol.</p>
+		<p>Unregisters the specified subclass of <a href="../Classes/AFHTTPRequestOperation.html"><code>AFHTTPRequestOperation</code></a>.</p>
 	</div>
 	
 	
@@ -1718,7 +1712,7 @@
 				<div id="footer">
 					<hr />
 					<div class="footer-copyright">
-						<p><span class="copyright">&copy; 2011 Gowalla. All rights reserved. (Last updated: 2011-10-12)</span><br />
+						<p><span class="copyright">&copy; 2011 Gowalla. All rights reserved. (Last updated: 2011-11-11)</span><br />
 						
 						<span class="generator">Generated by <a href="http://appledoc.gentlebytes.com">appledoc 2.0.4 (build 703)</a>.</span></p>
 						
