@@ -418,6 +418,7 @@ static inline NSString * AFMultipartFormFinalBoundary() {
     
     self.streamFilePath = [NSTemporaryDirectory() stringByAppendingPathComponent:AFBase64EncodedStringFromString([[NSDate date] description])];
     self.outputStream = [NSOutputStream outputStreamToFileAtPath:self.streamFilePath append:NO];
+    [self.outputStream scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
     [self.outputStream open];
             
     return self;
