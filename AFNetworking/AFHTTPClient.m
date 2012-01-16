@@ -436,7 +436,9 @@ static inline NSString * AFMultipartFormFinalBoundary() {
         [self appendData:[AFMultipartFormFinalBoundary() dataUsingEncoding:self.stringEncoding]];
         [self.outputStream close];
         
-        [request setHTTPBodyStream:[[[NSInputStream alloc] initWithFileAtPath:self.streamFilePath] autorelease]];
+        NSInputStream *inputStream = [[[NSInputStream alloc] initWithFileAtPath:self.streamFilePath] autorelease];
+        [inputStream scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+        [request setHTTPBodyStream:inputStream];
         [request setValue:[[NSNumber numberWithInteger:self.numberOfBytesWritten] description] forHTTPHeaderField:@"Content-Length"];
     }
 }
