@@ -294,7 +294,6 @@ static NSString * AFPropertyListStringFromParameters(NSDictionary *parameters) {
         block(formData);
     }
     
-    [request setValue:[NSString stringWithFormat:@"multipart/form-data; boundary=%@", kAFMultipartFormBoundary] forHTTPHeaderField:@"Content-Type"];
     [formData finalizeAndSetHTTPBodyStreamForRequest:request];
         
     [formData autorelease];
@@ -421,9 +420,9 @@ static inline NSString * AFMultipartFormFinalBoundary() {
     self.streamFilePath = [NSTemporaryDirectory() stringByAppendingPathComponent:identifier];
     
     self.outputStream = [NSOutputStream outputStreamToFileAtPath:self.streamFilePath append:NO];
-    [self.outputStream scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+    [self.outputStream scheduleInRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
     [self.outputStream open];
-            
+                
     return self;
 }
 
@@ -439,10 +438,12 @@ static inline NSString * AFMultipartFormFinalBoundary() {
         [self appendData:[AFMultipartFormFinalBoundary() dataUsingEncoding:self.stringEncoding]];
         [self.outputStream close];
         
-        NSInputStream *inputStream = [[[NSInputStream alloc] initWithFileAtPath:self.streamFilePath] autorelease];
-        [inputStream scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
-        [request setHTTPBodyStream:inputStream];
+        [request setValue:[NSString stringWithFormat:@"multipart/form-data; boundary=%@", kAFMultipartFormBoundary] forHTTPHeaderField:@"Content-Type"];
         [request setValue:[[NSNumber numberWithInteger:self.numberOfBytesWritten] description] forHTTPHeaderField:@"Content-Length"];
+        
+        NSInputStream *inputStream = [[[NSInputStream alloc] initWithFileAtPath:self.streamFilePath] autorelease];
+        [inputStream scheduleInRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
+        [request setHTTPBodyStream:inputStream];
     }
 }
 
