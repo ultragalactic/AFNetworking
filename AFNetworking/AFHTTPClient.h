@@ -412,18 +412,18 @@ extern NSString * AFQueryStringFromParametersWithEncoding(NSDictionary *paramete
 - (BOOL)appendPartWithFileURL:(NSURL *)fileURL name:(NSString *)name error:(NSError **)error;
 
 /**
- Appends encoded data to the form data.
- 
- @param data The data to be encoded and appended to the form data.
- */
-- (void)appendData:(NSData *)data;
-
-/**
  Appends a string to the form data.
  
  @param string The string to be encoded and appended to the form data.
  */
 - (void)appendString:(NSString *)string;
+
+/**
+ Appends encoded data to the form data.
+ 
+ @param data The data to be encoded and appended to the form data.
+ */
+- (void)appendData:(NSData *)data;
 
 @end
 

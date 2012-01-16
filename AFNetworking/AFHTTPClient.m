@@ -38,12 +38,14 @@ static NSString * const kAFMultipartFormBoundary = @"Boundary+0xAbCdEfGbOuNdArY"
 @interface AFMultipartFormData : NSObject <AFMultipartFormData> {
 @private
     NSStringEncoding _stringEncoding;
-    NSMutableData *_mutableData;
+    NSString *_streamFilePath;
+    NSOutputStream *_outputStream;
+    BOOL _hasAppendedData;
 }
 
-@property (readonly) NSData *data;
-
 - (id)initWithStringEncoding:(NSStringEncoding)encoding;
+
+- (void)finalizeAndSetHTTPBodyStreamForRequest:(NSMutableURLRequest *)request;
 
 @end
 
@@ -293,8 +295,8 @@ static NSString * AFPropertyListStringFromParameters(NSDictionary *parameters) {
     }
     
     [request setValue:[NSString stringWithFormat:@"multipart/form-data; boundary=%@", kAFMultipartFormBoundary] forHTTPHeaderField:@"Content-Type"];
-    [request setHTTPBody:[formData data]];
-    
+    [formData finalizeAndSetHTTPBodyStreamForRequest:request];
+        
     [formData autorelease];
     
     return request;
@@ -395,12 +397,18 @@ static inline NSString * AFMultipartFormFinalBoundary() {
 
 @interface AFMultipartFormData ()
 @property (readwrite, nonatomic, assign) NSStringEncoding stringEncoding;
-@property (readwrite, nonatomic, retain) NSMutableData *mutableData;
+@property (readwrite, nonatomic, copy) NSString *streamFilePath;
+@property (readwrite, nonatomic, retain) NSOutputStream *outputStream;
+@property (readonly, nonatomic, assign) BOOL hasAppendedData;
+
+- (void)setHasAppendedData;
 @end
 
 @implementation AFMultipartFormData
 @synthesize stringEncoding = _stringEncoding;
-@synthesize mutableData = _mutableData;
+@synthesize outputStream = _outputStream;
+@synthesize streamFilePath = _streamFilePath;
+@synthesize hasAppendedData = _hasAppendedData;
 
 - (id)initWithStringEncoding:(NSStringEncoding)encoding {
     self = [super init];
@@ -409,26 +417,40 @@ static inline NSString * AFMultipartFormFinalBoundary() {
     }
     
     self.stringEncoding = encoding;
-    self.mutableData = [NSMutableData dataWithLength:0];
     
+    self.streamFilePath = [NSTemporaryDirectory() stringByAppendingPathComponent:AFBase64EncodedStringFromString([[NSDate date] description])];
+    self.outputStream = [NSOutputStream outputStreamToFileAtPath:self.streamFilePath append:NO];
+    [self.outputStream open];
+        
     return self;
 }
 
 - (void)dealloc {
-    [_mutableData release];
+    [_outputStream close];
+    [_outputStream release];
+    [_streamFilePath release];
     [super dealloc];
 }
 
-- (NSData *)data {
-    NSMutableData *finalizedData = [NSMutableData dataWithData:self.mutableData];
-    [finalizedData appendData:[AFMultipartFormFinalBoundary() dataUsingEncoding:self.stringEncoding]];
-    return finalizedData;
+- (void)setHasAppendedData {
+    [self willChangeValueForKey:@"hasAppendedData"];
+    _hasAppendedData = YES;
+    [self didChangeValueForKey:@"hasAppendedData"];
+}
+
+- (void)finalizeAndSetHTTPBodyStreamForRequest:(NSMutableURLRequest *)request {
+    if ([self hasAppendedData]) {
+        [self appendData:[AFMultipartFormFinalBoundary() dataUsingEncoding:self.stringEncoding]];
+        [self.outputStream close];
+        
+        [request setHTTPBodyStream:[[[NSInputStream alloc] initWithFileAtPath:self.streamFilePath] autorelease]];
+    }
 }
 
 #pragma mark - AFMultipartFormData
 
 - (void)appendPartWithHeaders:(NSDictionary *)headers body:(NSData *)body {
-    if ([self.mutableData length] == 0) {
+    if (![self hasAppendedData]) {
         [self appendString:AFMultipartFormInitialBoundary()];
     } else {
         [self appendString:AFMultipartFormEncapsulationBoundary()];
@@ -484,12 +506,17 @@ static inline NSString * AFMultipartFormFinalBoundary() {
     }
 }
 
-- (void)appendData:(NSData *)data {
-    [self.mutableData appendData:data];
-}
-
 - (void)appendString:(NSString *)string {
     [self appendData:[string dataUsingEncoding:self.stringEncoding]];
+}
+
+- (void)appendData:(NSData *)data {
+    if ([self.outputStream hasSpaceAvailable]) {
+        const uint8_t *dataBuffer = [data bytes];
+        [self.outputStream write:&dataBuffer[0] maxLength:[data length]];
+        
+        [self setHasAppendedData];
+    }
 }
 
 @end
