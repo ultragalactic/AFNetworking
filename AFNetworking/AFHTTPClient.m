@@ -416,7 +416,10 @@ static inline NSString * AFMultipartFormFinalBoundary() {
     
     self.stringEncoding = encoding;
     
-    self.streamFilePath = [NSTemporaryDirectory() stringByAppendingPathComponent:AFBase64EncodedStringFromString([[NSDate date] description])];
+    
+    NSString *identifier = [AFBase64EncodedStringFromString([[NSDate date] description]) stringByTrimmingCharactersInSet:[[NSCharacterSet alphanumericCharacterSet] invertedSet]];
+    self.streamFilePath = [NSTemporaryDirectory() stringByAppendingPathComponent:identifier];
+    
     self.outputStream = [NSOutputStream outputStreamToFileAtPath:self.streamFilePath append:NO];
     [self.outputStream scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
     [self.outputStream open];
