@@ -40,7 +40,7 @@ static NSString * const kAFMultipartFormBoundary = @"Boundary+0xAbCdEfGbOuNdArY"
     NSStringEncoding _stringEncoding;
     NSString *_streamFilePath;
     NSOutputStream *_outputStream;
-    BOOL _hasAppendedData;
+    NSUInteger _numberOfBytesWritten;
 }
 
 - (id)initWithStringEncoding:(NSStringEncoding)encoding;
@@ -399,16 +399,14 @@ static inline NSString * AFMultipartFormFinalBoundary() {
 @property (readwrite, nonatomic, assign) NSStringEncoding stringEncoding;
 @property (readwrite, nonatomic, copy) NSString *streamFilePath;
 @property (readwrite, nonatomic, retain) NSOutputStream *outputStream;
-@property (readonly, nonatomic, assign) BOOL hasAppendedData;
-
-- (void)setHasAppendedData;
+@property (readwrite, nonatomic, assign) NSUInteger numberOfBytesWritten;
 @end
 
 @implementation AFMultipartFormData
 @synthesize stringEncoding = _stringEncoding;
 @synthesize outputStream = _outputStream;
 @synthesize streamFilePath = _streamFilePath;
-@synthesize hasAppendedData = _hasAppendedData;
+@synthesize numberOfBytesWritten = _numberOfBytesWritten;
 
 - (id)initWithStringEncoding:(NSStringEncoding)encoding {
     self = [super init];
@@ -421,7 +419,7 @@ static inline NSString * AFMultipartFormFinalBoundary() {
     self.streamFilePath = [NSTemporaryDirectory() stringByAppendingPathComponent:AFBase64EncodedStringFromString([[NSDate date] description])];
     self.outputStream = [NSOutputStream outputStreamToFileAtPath:self.streamFilePath append:NO];
     [self.outputStream open];
-        
+            
     return self;
 }
 
@@ -432,25 +430,20 @@ static inline NSString * AFMultipartFormFinalBoundary() {
     [super dealloc];
 }
 
-- (void)setHasAppendedData {
-    [self willChangeValueForKey:@"hasAppendedData"];
-    _hasAppendedData = YES;
-    [self didChangeValueForKey:@"hasAppendedData"];
-}
-
 - (void)finalizeAndSetHTTPBodyStreamForRequest:(NSMutableURLRequest *)request {
-    if ([self hasAppendedData]) {
+    if (self.numberOfBytesWritten > 0) {
         [self appendData:[AFMultipartFormFinalBoundary() dataUsingEncoding:self.stringEncoding]];
         [self.outputStream close];
         
         [request setHTTPBodyStream:[[[NSInputStream alloc] initWithFileAtPath:self.streamFilePath] autorelease]];
+        [request setValue:[[NSNumber numberWithInteger:self.numberOfBytesWritten] description] forHTTPHeaderField:@"Content-Length"];
     }
 }
 
 #pragma mark - AFMultipartFormData
 
 - (void)appendPartWithHeaders:(NSDictionary *)headers body:(NSData *)body {
-    if (![self hasAppendedData]) {
+    if (self.numberOfBytesWritten == 0) {
         [self appendString:AFMultipartFormInitialBoundary()];
     } else {
         [self appendString:AFMultipartFormEncapsulationBoundary()];
@@ -515,7 +508,7 @@ static inline NSString * AFMultipartFormFinalBoundary() {
         const uint8_t *dataBuffer = [data bytes];
         [self.outputStream write:&dataBuffer[0] maxLength:[data length]];
         
-        [self setHasAppendedData];
+        self.numberOfBytesWritten += [data length];
     }
 }
 
